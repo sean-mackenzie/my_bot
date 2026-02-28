@@ -1,0 +1,383 @@
+<?xml version="1.0" ?>
+<sdf version="1.8">
+  <world name="living_room">
+
+    <!-- ============================================================ -->
+    <!--  ROOM LAYOUT (top-down view, Z up)                           -->
+    <!--                                                               -->
+    <!--              Y=+2.5                                           -->
+    <!--         _____|_________________________                       -->
+    <!--        |     left wall                |                       -->
+    <!--        |                              |                       -->
+    <!--   X=0  |      ROOM INTERIOR           | X=6  back wall       -->
+    <!--  open  |      (6 m x 5 m)            |                       -->
+    <!--  face  |                              |                       -->
+    <!--        |_____ right wall ______________|                      -->
+    <!--              Y=-2.5                                           -->
+    <!--                                                               -->
+    <!--  Robot spawns at (0, 0, 0.1) facing +X — into the room.     -->
+    <!--  No spawn coordinate changes to launch file are needed.      -->
+    <!-- ============================================================ -->
+
+    <!-- ============================================================ -->
+    <!--  PHYSICS                                                      -->
+    <!-- ============================================================ -->
+    <physics name="1ms" type="ignored">
+      <max_step_size>0.001</max_step_size>
+      <real_time_factor>1.0</real_time_factor>
+    </physics>
+
+    <gravity>0 0 -9.81</gravity>
+
+    <!-- ============================================================ -->
+    <!--  WORLD-LEVEL SYSTEM PLUGINS                                   -->
+    <!-- ============================================================ -->
+
+    <plugin filename="gz-sim-physics-system"
+            name="gz::sim::systems::Physics"/>
+
+    <plugin filename="gz-sim-user-commands-system"
+            name="gz::sim::systems::UserCommands"/>
+
+    <plugin filename="gz-sim-scene-broadcaster-system"
+            name="gz::sim::systems::SceneBroadcaster"/>
+
+    <plugin filename="gz-sim-contact-system"
+            name="gz::sim::systems::Contact"/>
+
+    <!-- Required for gpu_lidar: manages render pipeline for all sensors -->
+    <plugin filename="gz-sim-sensors-system"
+            name="gz::sim::systems::Sensors">
+      <render_engine>ogre2</render_engine>
+    </plugin>
+
+    <plugin filename="gz-sim-imu-system"
+            name="gz::sim::systems::Imu"/>
+
+    <!-- ============================================================ -->
+    <!--  LIGHTING                                                     -->
+    <!-- ============================================================ -->
+    <light type="directional" name="sun">
+      <cast_shadows>true</cast_shadows>
+      <pose>0 0 10 0 0 0</pose>
+      <diffuse>0.9 0.9 0.9 1</diffuse>
+      <specular>0.3 0.3 0.3 1</specular>
+      <direction>-0.5 0.1 -0.9</direction>
+      <attenuation>
+        <range>1000</range>
+        <constant>0.9</constant>
+        <linear>0.01</linear>
+        <quadratic>0.001</quadratic>
+      </attenuation>
+    </light>
+
+    <light type="point" name="ambient_fill">
+      <pose>3 0 4 0 0 0</pose>
+      <diffuse>0.4 0.4 0.4 1</diffuse>
+      <specular>0.1 0.1 0.1 1</specular>
+      <attenuation>
+        <range>20</range>
+        <constant>0.5</constant>
+        <linear>0.02</linear>
+        <quadratic>0.01</quadratic>
+      </attenuation>
+      <cast_shadows>false</cast_shadows>
+    </light>
+
+    <!-- ============================================================ -->
+    <!--  GROUND PLANE                                                 -->
+    <!-- ============================================================ -->
+    <model name="ground_plane">
+      <static>true</static>
+      <link name="link">
+        <collision name="collision">
+          <geometry>
+            <plane>
+              <normal>0 0 1</normal>
+              <size>100 100</size>
+            </plane>
+          </geometry>
+          <surface>
+            <friction>
+              <ode>
+                <mu>100</mu>
+                <mu2>50</mu2>
+              </ode>
+            </friction>
+          </surface>
+        </collision>
+        <visual name="visual">
+          <geometry>
+            <plane>
+              <normal>0 0 1</normal>
+              <size>100 100</size>
+            </plane>
+          </geometry>
+          <material>
+            <ambient>0.85 0.85 0.85 1</ambient>
+            <diffuse>0.85 0.85 0.85 1</diffuse>
+            <specular>0.01 0.01 0.01 1</specular>
+          </material>
+        </visual>
+      </link>
+    </model>
+
+    <!-- ============================================================ -->
+    <!--  WALLS                                                        -->
+    <!--  Thickness: 0.2 m.  Height: 2.5 m.                          -->
+    <!--  Interior: X=[0,6], Y=[-2.5,+2.5]                           -->
+    <!-- ============================================================ -->
+
+    <!-- Back wall: at X=6, spans full Y width including corners       -->
+    <model name="back_wall">
+      <static>true</static>
+      <pose>6.1 0 1.25 0 0 0</pose>
+      <link name="link">
+        <collision name="collision">
+          <geometry><box><size>0.2 5.4 2.5</size></box></geometry>
+        </collision>
+        <visual name="visual">
+          <geometry><box><size>0.2 5.4 2.5</size></box></geometry>
+          <material>
+            <ambient>0.85 0.82 0.78 1</ambient>
+            <diffuse>0.85 0.82 0.78 1</diffuse>
+            <specular>0.02 0.02 0.02 1</specular>
+          </material>
+        </visual>
+      </link>
+    </model>
+
+    <!-- Left wall: at Y=+2.6, spans X=[0,6]                          -->
+    <model name="left_wall">
+      <static>true</static>
+      <pose>3.0 2.6 1.25 0 0 0</pose>
+      <link name="link">
+        <collision name="collision">
+          <geometry><box><size>6.0 0.2 2.5</size></box></geometry>
+        </collision>
+        <visual name="visual">
+          <geometry><box><size>6.0 0.2 2.5</size></box></geometry>
+          <material>
+            <ambient>0.85 0.82 0.78 1</ambient>
+            <diffuse>0.85 0.82 0.78 1</diffuse>
+            <specular>0.02 0.02 0.02 1</specular>
+          </material>
+        </visual>
+      </link>
+    </model>
+
+    <!-- Right wall: at Y=-2.6, spans X=[0,6]                         -->
+    <model name="right_wall">
+      <static>true</static>
+      <pose>3.0 -2.6 1.25 0 0 0</pose>
+      <link name="link">
+        <collision name="collision">
+          <geometry><box><size>6.0 0.2 2.5</size></box></geometry>
+        </collision>
+        <visual name="visual">
+          <geometry><box><size>6.0 0.2 2.5</size></box></geometry>
+          <material>
+            <ambient>0.85 0.82 0.78 1</ambient>
+            <diffuse>0.85 0.82 0.78 1</diffuse>
+            <specular>0.02 0.02 0.02 1</specular>
+          </material>
+        </visual>
+      </link>
+    </model>
+
+    <!-- ============================================================ -->
+    <!--  FURNITURE                                                    -->
+    <!--  All within interior X=[0.5,5.8], Y=[-2.2,+2.2]            -->
+    <!-- ============================================================ -->
+
+    <!-- SOFA SEAT: against back wall, centred on Y axis              -->
+    <model name="sofa_seat">
+      <static>true</static>
+      <pose>5.35 0 0.225 0 0 0</pose>
+      <link name="link">
+        <collision name="collision">
+          <geometry><box><size>0.9 2.0 0.45</size></box></geometry>
+        </collision>
+        <visual name="visual">
+          <geometry><box><size>0.9 2.0 0.45</size></box></geometry>
+          <material>
+            <ambient>0.25 0.35 0.55 1</ambient>
+            <diffuse>0.25 0.35 0.55 1</diffuse>
+            <specular>0.02 0.02 0.02 1</specular>
+          </material>
+        </visual>
+      </link>
+    </model>
+
+    <!-- SOFA BACKREST: sits directly behind seat                      -->
+    <model name="sofa_backrest">
+      <static>true</static>
+      <pose>5.725 0 0.675 0 0 0</pose>
+      <link name="link">
+        <collision name="collision">
+          <geometry><box><size>0.25 2.0 0.45</size></box></geometry>
+        </collision>
+        <visual name="visual">
+          <geometry><box><size>0.25 2.0 0.45</size></box></geometry>
+          <material>
+            <ambient>0.20 0.28 0.48 1</ambient>
+            <diffuse>0.20 0.28 0.48 1</diffuse>
+            <specular>0.02 0.02 0.02 1</specular>
+          </material>
+        </visual>
+      </link>
+    </model>
+
+    <!-- COFFEE TABLE: in front of sofa                                -->
+    <model name="coffee_table">
+      <static>true</static>
+      <pose>4.1 0 0.2 0 0 0</pose>
+      <link name="link">
+        <collision name="collision">
+          <geometry><box><size>0.5 1.0 0.4</size></box></geometry>
+        </collision>
+        <visual name="visual">
+          <geometry><box><size>0.5 1.0 0.4</size></box></geometry>
+          <material>
+            <ambient>0.45 0.30 0.15 1</ambient>
+            <diffuse>0.45 0.30 0.15 1</diffuse>
+            <specular>0.05 0.04 0.02 1</specular>
+          </material>
+        </visual>
+      </link>
+    </model>
+
+    <!-- ARMCHAIR: left side, angled slightly toward room centre        -->
+    <model name="armchair">
+      <static>true</static>
+      <pose>4.5 1.8 0.225 0 0 2.967</pose>
+      <link name="link">
+        <collision name="collision">
+          <geometry><box><size>0.8 0.8 0.45</size></box></geometry>
+        </collision>
+        <visual name="visual">
+          <geometry><box><size>0.8 0.8 0.45</size></box></geometry>
+          <material>
+            <ambient>0.55 0.28 0.20 1</ambient>
+            <diffuse>0.55 0.28 0.20 1</diffuse>
+            <specular>0.02 0.02 0.02 1</specular>
+          </material>
+        </visual>
+      </link>
+    </model>
+
+    <!-- FLOOR LAMP: back-left corner                                  -->
+    <model name="floor_lamp_pole">
+      <static>true</static>
+      <pose>5.6 2.1 0.9 0 0 0</pose>
+      <link name="link">
+        <collision name="collision">
+          <geometry><cylinder><radius>0.03</radius><length>1.8</length></cylinder></geometry>
+        </collision>
+        <visual name="visual">
+          <geometry><cylinder><radius>0.03</radius><length>1.8</length></cylinder></geometry>
+          <material>
+            <ambient>0.15 0.15 0.15 1</ambient>
+            <diffuse>0.15 0.15 0.15 1</diffuse>
+            <specular>0.3 0.3 0.3 1</specular>
+          </material>
+        </visual>
+      </link>
+    </model>
+
+    <model name="floor_lamp_shade">
+      <static>true</static>
+      <pose>5.6 2.1 1.85 0 0 0</pose>
+      <link name="link">
+        <collision name="collision">
+          <geometry><sphere><radius>0.18</radius></sphere></geometry>
+        </collision>
+        <visual name="visual">
+          <geometry><sphere><radius>0.18</radius></sphere></geometry>
+          <material>
+            <ambient>0.9 0.85 0.6 1</ambient>
+            <diffuse>0.9 0.85 0.6 1</diffuse>
+            <specular>0.05 0.05 0.05 1</specular>
+          </material>
+        </visual>
+      </link>
+    </model>
+
+    <!-- BOOKCASE: against right wall, near open face                  -->
+    <model name="bookcase">
+      <static>true</static>
+      <pose>1.5 -2.275 0.9 0 0 0</pose>
+      <link name="link">
+        <collision name="collision">
+          <geometry><box><size>0.9 0.35 1.8</size></box></geometry>
+        </collision>
+        <visual name="visual">
+          <geometry><box><size>0.9 0.35 1.8</size></box></geometry>
+          <material>
+            <ambient>0.38 0.24 0.12 1</ambient>
+            <diffuse>0.38 0.24 0.12 1</diffuse>
+            <specular>0.04 0.03 0.01 1</specular>
+          </material>
+        </visual>
+      </link>
+    </model>
+
+    <!-- SCATTERED BOX: mid-room clutter                               -->
+    <model name="box_clutter">
+      <static>true</static>
+      <pose>2.5 0.9 0.15 0 0 0.4</pose>
+      <link name="link">
+        <collision name="collision">
+          <geometry><box><size>0.3 0.3 0.3</size></box></geometry>
+        </collision>
+        <visual name="visual">
+          <geometry><box><size>0.3 0.3 0.3</size></box></geometry>
+          <material>
+            <ambient>0.7 0.5 0.1 1</ambient>
+            <diffuse>0.7 0.5 0.1 1</diffuse>
+            <specular>0.02 0.02 0.02 1</specular>
+          </material>
+        </visual>
+      </link>
+    </model>
+
+    <!-- PLANT POT: right side, mid-depth                              -->
+    <model name="plant_pot">
+      <static>true</static>
+      <pose>1.2 -1.6 0.2 0 0 0</pose>
+      <link name="link">
+        <collision name="collision">
+          <geometry><cylinder><radius>0.18</radius><length>0.4</length></cylinder></geometry>
+        </collision>
+        <visual name="visual">
+          <geometry><cylinder><radius>0.18</radius><length>0.4</length></cylinder></geometry>
+          <material>
+            <ambient>0.4 0.25 0.15 1</ambient>
+            <diffuse>0.4 0.25 0.15 1</diffuse>
+            <specular>0.02 0.02 0.02 1</specular>
+          </material>
+        </visual>
+      </link>
+    </model>
+
+    <!-- SIDE TABLE: beside armchair                                    -->
+    <model name="side_table">
+      <static>true</static>
+      <pose>3.8 1.5 0.3 0 0 0</pose>
+      <link name="link">
+        <collision name="collision">
+          <geometry><cylinder><radius>0.25</radius><length>0.6</length></cylinder></geometry>
+        </collision>
+        <visual name="visual">
+          <geometry><cylinder><radius>0.25</radius><length>0.6</length></cylinder></geometry>
+          <material>
+            <ambient>0.55 0.40 0.25 1</ambient>
+            <diffuse>0.55 0.40 0.25 1</diffuse>
+            <specular>0.04 0.03 0.02 1</specular>
+          </material>
+        </visual>
+      </link>
+    </model>
+
+  </world>
+</sdf>

@@ -33,9 +33,12 @@ def generate_launch_description():
 
     world_arg = DeclareLaunchArgument(
         'world',
-        default_value="empty.sdf",
+        # default_value="empty.sdf",
+        default_value=os.path.join(
+            get_package_share_directory('my_bot'), 'worlds', 'living_room.sdf'
+        ),
         description='World to load'
-        )
+    )
 
     # Include the Gazebo launch file, provided by the ros_gz_sim package
     ## -r: Run immediately (don't wait for user to press play)
@@ -62,7 +65,10 @@ def generate_launch_description():
                 executable='create',
                 arguments=['-topic', 'robot_description',
                         '-name', 'my_bot',
+                        #'-x', '3.0',
+                        #'-y', '4.8',
                         '-z', '0.1'],
+                        #'-Y', '1.5707'],    # Yaw = -π/2: robot faces -Y (into the room)
                 output='screen'
             )
         ]
