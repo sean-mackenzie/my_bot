@@ -5,4 +5,14 @@
     <xacro:include filename="gazebo_control.xacro"/>
     <xacro:include filename="lidar.xacro" />
 
+    <!-- Instantiate the RPLIDAR A1, attached to chassis link.
+         Origin is relative to the chassis link frame.
+         Chassis box spans x: 0→0.3, y: -0.15→0.15, z: 0→0.15
+         from chassis link origin (rear-bottom corner).
+         Placing lidar centered on top surface: x=0.15, y=0, z=0.18
+         (z = chassis top 0.15 + half lidar height 0.03) -->
+    <xacro:rplidar_a1 parent="chassis">
+        <origin xyz="0.15 0 0.18" rpy="0 0 0"/>
+    </xacro:rplidar_a1>
+
 </robot>
