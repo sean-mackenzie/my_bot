@@ -4,6 +4,7 @@
     <xacro:include filename="robot_core.xacro" />
     <xacro:include filename="gazebo_control.xacro"/>
     <xacro:include filename="lidar.xacro" />
+    <xacro:include filename="camera.xacro" />
 
     <!-- Instantiate the RPLIDAR A1, attached to chassis link.
          Origin is relative to the chassis link frame.
@@ -14,5 +15,12 @@
     <xacro:rplidar_a1 parent="chassis">
         <origin xyz="0.15 0 0.18" rpy="0 0 0"/>
     </xacro:rplidar_a1>
+
+    <!--
+        NOTE: The camera link/joint are defined entirely within camera.xacro
+        and require no macro instantiation — the file directly emits a fixed
+        joint from `chassis` to `camera_link` at xyz="0.300 0.0 0.075".
+        No additional block is needed here.
+    -->
 
 </robot>

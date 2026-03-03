@@ -47,3 +47,12 @@
   ros_type_name: "sensor_msgs/msg/PointCloud2"
   gz_type_name: "gz.msgs.PointCloudPacked"
   direction: GZ_TO_ROS
+
+# The image topic (/camera/image_raw) must NOT go through this bridge.
+# It is handled by the dedicated `ros_gz_image` image_bridge node (see below).
+# Only CameraInfo goes through the standard parameter_bridge.
+- ros_topic_name: "/camera/camera_info"
+  gz_topic_name: "/camera/camera_info"
+  ros_type_name: "sensor_msgs/msg/CameraInfo"
+  gz_type_name: "gz.msgs.CameraInfo"
+  direction: GZ_TO_ROS
