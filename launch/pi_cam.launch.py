@@ -47,4 +47,5 @@ def generate_launch_description():
 
     return LaunchDescription([
         camera_node,
+        compressed_republisher,
     ])
