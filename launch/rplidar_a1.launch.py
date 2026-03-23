@@ -5,6 +5,12 @@ from launch_ros.actions import Node
 
 
 def generate_launch_description():
+    """
+    Lidar launch file that is intended to only run on the Pi to test/verify the lidar is working.
+    
+    Launch file for the RPLIDAR A1. This will start the ROS2 node that interfaces with the lidar, 
+    and also publish static transforms for the laser frame and base link (required to view in RViz).
+    """
 
     serial_port_arg = DeclareLaunchArgument(
         'serial_port',
@@ -24,10 +30,30 @@ def generate_launch_description():
         description='TF frame ID for the lidar'
     )
 
+    """ 
+    The below is if you want to use the sllidar_ros2 package instead of rplidar_ros. 
+    You will need to change the package and executable names, and adjust the parameters accordingly.
+    
     sllidar_node = Node(
         package='sllidar_ros2',
         executable='sllidar_node',
         name='sllidar_node',
+        output='screen',
+        parameters=[{
+            'serial_port':      LaunchConfiguration('serial_port'),
+            'serial_baudrate':  LaunchConfiguration('serial_baudrate'),
+            'frame_id':         LaunchConfiguration('frame_id'),
+            'angle_compensate': True,
+            'scan_mode':        'Standard',
+            'inverted':         False,
+        }]
+    )
+    """
+
+    rplidar_node = Node(
+        package='rplidar_ros',
+        executable='rplidar_node',
+        name='rplidar_node',
         output='screen',
         parameters=[{
             'serial_port':      LaunchConfiguration('serial_port'),
@@ -63,7 +89,8 @@ def generate_launch_description():
         serial_port_arg,
         serial_baudrate_arg,
         frame_id_arg,
-        sllidar_node,
+        # sllidar_node,
+        rplidar_node,
         base_to_laser_tf,
         odom_to_base_tf,
     ])
