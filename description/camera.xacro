@@ -176,10 +176,11 @@
                             <!-- R8G8B8: 8-bit unsigned, 3 channels — matches IMX219 RAW→RGB
                                 output pipeline. 
                                     Use 640x480 for lightweight testing.
+                                    Reduced to 320x240 on 3/23/2026 for even lower overhead;
                                     Use 1640x1232 for full resolution. -->
                             <format>R8G8B8</format>
-                            <width>640</width>
-                            <height>480</height>
+                            <width>320</width>
+                            <height>240</height>
                         </image>
 
                         <clip>
@@ -203,7 +204,7 @@
 
                     <!-- Publish at 30 Hz — matches IMX219 1640×1232 @ 41 fps (capped at
                         30 Hz for ROS bandwidth management) -->
-                    <update_rate>30.0</update_rate>
+                    <update_rate>15.0</update_rate>
                     <always_on>1</always_on>
                     <visualize>true</visualize>
 
