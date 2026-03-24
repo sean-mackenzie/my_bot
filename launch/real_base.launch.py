@@ -47,6 +47,18 @@ def generate_launch_description():
         condition=IfCondition(use_rviz),
     )"""
 
+    """DeclareLaunchArgument(
+            'use_rviz',
+            default_value='true',
+            description='Launch RViz2',
+        ),
+        DeclareLaunchArgument(
+            'rviz_config',
+            default_value=os.path.join(pkg_path, 'rviz', 'config.rviz'),
+            description='RViz config file',
+        ),"""
+    """rviz,"""
+
     return LaunchDescription([
         DeclareLaunchArgument(
             'use_lidar',
@@ -58,16 +70,5 @@ def generate_launch_description():
             default_value='false',
             description='Include camera frames in robot_description',
         ),
-        """DeclareLaunchArgument(
-            'use_rviz',
-            default_value='true',
-            description='Launch RViz2',
-        ),
-        DeclareLaunchArgument(
-            'rviz_config',
-            default_value=os.path.join(pkg_path, 'rviz', 'config.rviz'),
-            description='RViz config file',
-        ),"""
         rsp,
-        """rviz,"""
     ])
