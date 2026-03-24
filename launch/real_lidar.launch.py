@@ -39,6 +39,21 @@ def generate_launch_description():
         }.items(),
     )
 
+    """ This was for launching RViz from the same launch file, but I commented it out since I usually 
+    launch from headless SSH terminal and then separately
+    
+    DeclareLaunchArgument(
+            'use_rviz',
+            default_value='true',
+            description='Launch RViz2',
+        ),
+        DeclareLaunchArgument(
+            'rviz_config',
+            default_value=os.path.join(pkg_path, 'rviz', 'config.rviz'),
+            description='RViz config file',
+        ),
+    """
+
     return LaunchDescription([
         DeclareLaunchArgument(
             'serial_port',
@@ -55,16 +70,6 @@ def generate_launch_description():
             default_value='laser_frame',
             description='TF frame ID for the lidar',
         ),
-        """DeclareLaunchArgument(
-            'use_rviz',
-            default_value='true',
-            description='Launch RViz2',
-        ),
-        DeclareLaunchArgument(
-            'rviz_config',
-            default_value=os.path.join(pkg_path, 'rviz', 'config.rviz'),
-            description='RViz config file',
-        ),"""
         real_base,
         lidar_driver,
     ])
