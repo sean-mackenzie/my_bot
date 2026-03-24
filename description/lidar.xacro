@@ -2,7 +2,7 @@
 <robot xmlns:xacro="http://www.ros.org/wiki/xacro">
 
   <!-- Macro parameters: parent link, XYZ offset, RPY offset -->
-  <xacro:macro name="rplidar_a1" params="parent *origin">
+  <xacro:macro name="rplidar_a1" params="parent use_sim:=false *origin">
 
     <joint name="laser_joint" type="fixed">
       <xacro:insert_block name="origin"/>
@@ -11,6 +11,7 @@
     </joint>
 
     <link name="laser_frame">
+      
       <visual>
         <geometry>
           <!-- A1 approximate dimensions: 98.5mm diameter, 60mm height -->
@@ -20,11 +21,13 @@
           <color rgba="0.8 0.0 0.0 1.0"/>
         </material>
       </visual>
+
       <collision>
         <geometry>
           <cylinder radius="0.0493" length="0.060"/>
         </geometry>
       </collision>
+
       <inertial>
         <!-- RPLIDAR A1M8 mass: ~170g -->
         <mass value="0.170"/>
@@ -34,45 +37,47 @@
           iyy="0.000214" iyz="0.0"
           izz="0.000205"/>
       </inertial>
+
     </link>
 
-    <gazebo reference="laser_frame">
-        <sensor name="laser" type="gpu_lidar">
-            <pose> 0 0 0 0 0 0 </pose>
-            <topic>/scan</topic>
-            <gz_frame_id>laser_frame</gz_frame_id>
-            <update_rate>5</update_rate>
-            <ray>
-                <scan>
-                    <horizontal>
-                        <samples>360</samples>
-                        <resolution>1</resolution>
-                        <min_angle>-3.14159</min_angle>
-                        <max_angle>3.14159</max_angle>
-                    </horizontal>
-                    <vertical>
-                        <samples>1</samples>
-                        <resolution>0.1</resolution>
-                        <min_angle>0</min_angle>
-                        <max_angle>0</max_angle>
-                    </vertical>
-                </scan>
-                <range>
-                    <min>0.15</min>
-                    <max>12.0</max>
-                    <resolution>0.01</resolution>
-                </range>
-                <noise>
-                    <type>gaussian</type>
-                    <mean>0.0</mean>
-                    <stddev>0.01</stddev>
-                </noise>
-            </ray>
-            <always_on>1</always_on>
-            <visualize>true</visualize>
-        </sensor>
-    </gazebo>
-
+    <xacro:if value="${use_sim}">
+      <gazebo reference="laser_frame">
+          <sensor name="laser" type="gpu_lidar">
+              <pose> 0 0 0 0 0 0 </pose>
+              <topic>/scan</topic>
+              <gz_frame_id>laser_frame</gz_frame_id>
+              <update_rate>5</update_rate>
+              <ray>
+                  <scan>
+                      <horizontal>
+                          <samples>360</samples>
+                          <resolution>1</resolution>
+                          <min_angle>-3.14159</min_angle>
+                          <max_angle>3.14159</max_angle>
+                      </horizontal>
+                      <vertical>
+                          <samples>1</samples>
+                          <resolution>0.1</resolution>
+                          <min_angle>0</min_angle>
+                          <max_angle>0</max_angle>
+                      </vertical>
+                  </scan>
+                  <range>
+                      <min>0.15</min>
+                      <max>12.0</max>
+                      <resolution>0.01</resolution>
+                  </range>
+                  <noise>
+                      <type>gaussian</type>
+                      <mean>0.0</mean>
+                      <stddev>0.01</stddev>
+                  </noise>
+              </ray>
+              <always_on>1</always_on>
+              <visualize>true</visualize>
+          </sensor>
+      </gazebo>
+    </xacro:if>
   </xacro:macro>
 
 </robot>
