@@ -37,7 +37,7 @@ def generate_launch_description():
             # Leave unset to use the driver default (usually YUV or RGB).
             'format': 'RGB888',
             # Set the desired frame rate control
-            'FrameDurationLimits': (66666, 66666),  # 15 FPS is a good balance for real-time control.
+            # 'FrameDurationLimits': (66666, 66666),  # 15 FPS is a good balance for real-time control.
         }],
         remappings=[
             # Remap camera_ros default topics to match our simulation topic names
