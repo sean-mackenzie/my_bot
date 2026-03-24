@@ -8,8 +8,8 @@ from launch.substitutions import LaunchConfiguration
 
 def generate_launch_description():
     pkg_path = get_package_share_directory('my_bot')
-    use_rviz = LaunchConfiguration('use_rviz')
-    rviz_config = LaunchConfiguration('rviz_config')
+    #use_rviz = LaunchConfiguration('use_rviz')
+    #rviz_config = LaunchConfiguration('rviz_config')
 
     real_base = IncludeLaunchDescription(
         PythonLaunchDescriptionSource(
@@ -18,8 +18,8 @@ def generate_launch_description():
         launch_arguments={
             'use_lidar': 'false',
             'use_camera': 'true',
-            'use_rviz': use_rviz,
-            'rviz_config': rviz_config,
+            #'use_rviz': use_rviz,
+            #'rviz_config': rviz_config,
         }.items(),
     )
 
@@ -30,7 +30,7 @@ def generate_launch_description():
     )
 
     return LaunchDescription([
-        DeclareLaunchArgument(
+        """DeclareLaunchArgument(
             'use_rviz',
             default_value='true',
             description='Launch RViz2',
@@ -39,7 +39,7 @@ def generate_launch_description():
             'rviz_config',
             default_value=os.path.join(pkg_path, 'rviz', 'config.rviz'),
             description='RViz config file',
-        ),
+        ),"""
         real_base,
         camera_driver,
     ])

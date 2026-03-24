@@ -10,12 +10,21 @@ from launch_ros.actions import Node
 
 
 def generate_launch_description():
+    """
+    I commented out the RViz launch for now since I usually launch from headless SSH terminal and then separately
+    launch RViz on VM for display. You can uncomment the RViz launch if you want to run everything
+
+    Launch file for the real robot base. This will start the robot state publisher with the real robot description,
+    and also start the RPLIDAR A1 driver node with static transforms. You can use
+    the same launch file for the simulation, just set the use_sim argument to true in the rsp.launch.py file, 
+    and it will use the simulated robot description instead.
+    """
     pkg_path = get_package_share_directory('my_bot')
 
     use_lidar = LaunchConfiguration('use_lidar')
     use_camera = LaunchConfiguration('use_camera')
-    use_rviz = LaunchConfiguration('use_rviz')
-    rviz_config = LaunchConfiguration('rviz_config')
+    #use_rviz = LaunchConfiguration('use_rviz')
+    #rviz_config = LaunchConfiguration('rviz_config')
 
     rsp = IncludeLaunchDescription(
         PythonLaunchDescriptionSource(
@@ -29,14 +38,14 @@ def generate_launch_description():
         }.items(),
     )
 
-    rviz = Node(
+    """rviz = Node(
         package='rviz2',
         executable='rviz2',
         name='rviz2',
         output='screen',
         arguments=['-d', rviz_config],
         condition=IfCondition(use_rviz),
-    )
+    )"""
 
     return LaunchDescription([
         DeclareLaunchArgument(
@@ -49,7 +58,7 @@ def generate_launch_description():
             default_value='false',
             description='Include camera frames in robot_description',
         ),
-        DeclareLaunchArgument(
+        """DeclareLaunchArgument(
             'use_rviz',
             default_value='true',
             description='Launch RViz2',
@@ -58,7 +67,7 @@ def generate_launch_description():
             'rviz_config',
             default_value=os.path.join(pkg_path, 'rviz', 'config.rviz'),
             description='RViz config file',
-        ),
+        ),"""
         rsp,
-        rviz,
+        """rviz,"""
     ])

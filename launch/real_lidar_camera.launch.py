@@ -13,8 +13,8 @@ def generate_launch_description():
     serial_port = LaunchConfiguration('serial_port')
     serial_baudrate = LaunchConfiguration('serial_baudrate')
     frame_id = LaunchConfiguration('frame_id')
-    use_rviz = LaunchConfiguration('use_rviz')
-    rviz_config = LaunchConfiguration('rviz_config')
+    #use_rviz = LaunchConfiguration('use_rviz')
+    #rviz_config = LaunchConfiguration('rviz_config')
 
     real_base = IncludeLaunchDescription(
         PythonLaunchDescriptionSource(
@@ -23,8 +23,8 @@ def generate_launch_description():
         launch_arguments={
             'use_lidar': 'true',
             'use_camera': 'true',
-            'use_rviz': use_rviz,
-            'rviz_config': rviz_config,
+            #'use_rviz': use_rviz,
+            #'rviz_config': rviz_config,
         }.items(),
     )
 
@@ -61,7 +61,7 @@ def generate_launch_description():
             default_value='laser_frame',
             description='TF frame ID for the lidar',
         ),
-        DeclareLaunchArgument(
+        """DeclareLaunchArgument(
             'use_rviz',
             default_value='true',
             description='Launch RViz2',
@@ -70,7 +70,7 @@ def generate_launch_description():
             'rviz_config',
             default_value=os.path.join(pkg_path, 'rviz', 'config.rviz'),
             description='RViz config file',
-        ),
+        ),"""
         real_base,
         lidar_driver,
         camera_driver,
