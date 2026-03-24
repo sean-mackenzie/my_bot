@@ -1,0 +1,16 @@
+base_driver:
+  ros__parameters:
+    port: /dev/ttyUSB0
+    baudrate: 57600
+
+    wheel_radius: 0.05
+    wheel_separation: 0.35
+    encoder_ticks_per_rev: 360.0
+
+    publish_rate_hz: 30.0
+    cmd_timeout_sec: 0.5
+
+    odom_frame: odom
+    base_frame: base_link
+    left_joint_name: left_wheel_joint
+    right_joint_name: right_wheel_joint

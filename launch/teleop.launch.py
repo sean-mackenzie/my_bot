@@ -15,7 +15,7 @@ def generate_launch_description():
         output='screen',
         parameters=[{
             'stamped': False,
-            'use_sim_time': True, # LaunchConfiguration('use_sim_time'),
+            'use_sim_time': False, # False=real test; True=simulation; LaunchConfiguration('use_sim_time'),
             }],
         remappings=[('/cmd_vel', cmd_vel_topic)],
     )
