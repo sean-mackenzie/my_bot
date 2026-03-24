@@ -25,7 +25,7 @@ def generate_launch_description():
     base_driver = Node(
         package='my_bot',
         executable='diff_drive_base.py',
-        name='diff_drive_base',
+        name='base_driver',
         output='screen',
         parameters=[os.path.join(pkg_path, 'config', 'base_driver.yaml')],
     )
