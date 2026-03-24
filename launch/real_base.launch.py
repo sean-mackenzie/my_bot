@@ -1,0 +1,64 @@
+import os
+
+from ament_index_python.packages import get_package_share_directory
+from launch import LaunchDescription
+from launch.actions import DeclareLaunchArgument, IncludeLaunchDescription
+from launch.conditions import IfCondition
+from launch.launch_description_sources import PythonLaunchDescriptionSource
+from launch.substitutions import LaunchConfiguration
+from launch_ros.actions import Node
+
+
+def generate_launch_description():
+    pkg_path = get_package_share_directory('my_bot')
+
+    use_lidar = LaunchConfiguration('use_lidar')
+    use_camera = LaunchConfiguration('use_camera')
+    use_rviz = LaunchConfiguration('use_rviz')
+    rviz_config = LaunchConfiguration('rviz_config')
+
+    rsp = IncludeLaunchDescription(
+        PythonLaunchDescriptionSource(
+            os.path.join(pkg_path, 'launch', 'rsp.launch.py')
+        ),
+        launch_arguments={
+            'use_sim_time': 'false',
+            'use_sim': 'false',
+            'use_lidar': use_lidar,
+            'use_camera': use_camera,
+        }.items(),
+    )
+
+    rviz = Node(
+        package='rviz2',
+        executable='rviz2',
+        name='rviz2',
+        output='screen',
+        arguments=['-d', rviz_config],
+        condition=IfCondition(use_rviz),
+    )
+
+    return LaunchDescription([
+        DeclareLaunchArgument(
+            'use_lidar',
+            default_value='false',
+            description='Include lidar frames in robot_description',
+        ),
+        DeclareLaunchArgument(
+            'use_camera',
+            default_value='false',
+            description='Include camera frames in robot_description',
+        ),
+        DeclareLaunchArgument(
+            'use_rviz',
+            default_value='true',
+            description='Launch RViz2',
+        ),
+        DeclareLaunchArgument(
+            'rviz_config',
+            default_value=os.path.join(pkg_path, 'rviz', 'config.rviz'),
+            description='RViz config file',
+        ),
+        rsp,
+        rviz,
+    ])
