@@ -5,7 +5,7 @@ base_driver:
 
     wheel_radius: 0.068
     wheel_separation: 0.237
-    encoder_ticks_per_rev: 408.0
+    encoder_ticks_per_rev: 1779.0
     pid_rate_hz: 30.0
 
     cmd_timeout_sec: 0.5
