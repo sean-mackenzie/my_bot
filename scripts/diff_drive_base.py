@@ -67,8 +67,6 @@ class DiffDriveBase(Node):
         self.target_left_rad_s = 0.0
         self.target_right_rad_s = 0.0
 
-        self.left_ticks_total: Optional[int] = None
-        self.right_ticks_total: Optional[int] = None
         self.prev_left_ticks_total: Optional[int] = None
         self.prev_right_ticks_total: Optional[int] = None
 
@@ -96,7 +94,7 @@ class DiffDriveBase(Node):
         )
 
     def connect_serial(self) -> None:
-        self.ser = serial.Serial(self.port, self.baudrate, timeout=0.1)
+        self.ser = serial.Serial(self.port, self.baudrate, timeout=0.05)
         self.ser.reset_input_buffer()
         self.ser.reset_output_buffer()
 
@@ -106,42 +104,35 @@ class DiffDriveBase(Node):
         with self.serial_lock:
             self.ser.write((cmd + '\r').encode('utf-8'))
 
-    def query_line(self, cmd: str) -> Optional[str]:
+    def read_line(self) -> Optional[str]:
         if self.ser is None:
             return None
         with self.serial_lock:
-            self.ser.reset_input_buffer()
-            self.ser.write((cmd + '\r').encode('utf-8'))
-            line = self.ser.readline()
-        if not line:
+            raw = self.ser.readline()
+        if not raw:
             return None
         try:
-            return line.decode('utf-8', errors='ignore').strip()
+            return raw.decode('utf-8', errors='ignore').strip()
         except Exception:
             return None
 
+    def flush_input(self) -> None:
+        if self.ser is None:
+            return
+        with self.serial_lock:
+            self.ser.reset_input_buffer()
+
     def reset_encoders(self) -> None:
-        reply = self.query_line('r')
-        if reply is not None:
-            self.get_logger().info(f'Arduino reset reply: {reply}')
-
-    def read_encoders(self) -> Optional[Tuple[int, int]]:
-        reply = self.query_line('e')
-        if reply is None:
-            return None
-
-        parts = reply.split()
-        if len(parts) != 2:
-            self.get_logger().warning(f'Unexpected encoder reply: "{reply}"')
-            return None
-
-        try:
-            left = int(parts[0])
-            right = int(parts[1])
-            return left, right
-        except ValueError:
-            self.get_logger().warning(f'Could not parse encoder reply: "{reply}"')
-            return None
+        self.flush_input()
+        self.write_command('r')
+        # Drain replies briefly; expect "OK"
+        for _ in range(5):
+            line = self.read_line()
+            if line is None:
+                continue
+            if line == 'OK':
+                self.get_logger().info('Arduino encoder reset acknowledged')
+                return
 
     def cmd_callback(self, msg: Twist) -> None:
         v = float(msg.linear.x)
@@ -164,6 +155,34 @@ class DiffDriveBase(Node):
         right_cpl = self.rad_s_to_counts_per_loop(right_rad_s, self.right_motor_sign)
         self.write_command(f'm {left_cpl} {right_cpl}')
 
+    def read_encoders(self) -> Optional[Tuple[int, int]]:
+        # Ask for encoder counts
+        self.write_command('e')
+
+        # Read several lines if needed, skipping "OK" replies from previous m commands
+        for _ in range(10):
+            line = self.read_line()
+            if line is None or line == '':
+                continue
+
+            if line == 'OK':
+                continue
+
+            parts = line.split()
+            if len(parts) != 2:
+                self.get_logger().warning(f'Unexpected encoder reply: "{line}"')
+                continue
+
+            try:
+                left = int(parts[0])
+                right = int(parts[1])
+                return left, right
+            except ValueError:
+                self.get_logger().warning(f'Unexpected encoder reply: "{line}"')
+                continue
+
+        return None
+
     def publish_joint_states(self, stamp) -> None:
         msg = JointState()
         msg.header.stamp = stamp
@@ -181,7 +200,6 @@ class DiffDriveBase(Node):
         msg.pose.pose.position.x = self.x
         msg.pose.pose.position.y = self.y
         msg.pose.pose.position.z = 0.0
-
         msg.pose.pose.orientation.z = math.sin(self.yaw / 2.0)
         msg.pose.pose.orientation.w = math.cos(self.yaw / 2.0)
 
@@ -199,7 +217,6 @@ class DiffDriveBase(Node):
         t.transform.translation.x = self.x
         t.transform.translation.y = self.y
         t.transform.translation.z = 0.0
-
         t.transform.rotation.z = math.sin(self.yaw / 2.0)
         t.transform.rotation.w = math.cos(self.yaw / 2.0)
 
@@ -211,7 +228,6 @@ class DiffDriveBase(Node):
         if dt <= 0.0:
             return
 
-        # Respect a shorter ROS-side timeout than the Arduino's 2 s auto-stop.
         if (now - self.last_cmd_time).nanoseconds * 1e-9 > self.cmd_timeout_sec:
             left_cmd = 0.0
             right_cmd = 0.0
@@ -219,6 +235,7 @@ class DiffDriveBase(Node):
             left_cmd = self.target_left_rad_s
             right_cmd = self.target_right_rad_s
 
+        # Firmware replies "OK" to m
         self.send_motor_command(left_cmd, right_cmd)
 
         enc = self.read_encoders()
@@ -228,9 +245,6 @@ class DiffDriveBase(Node):
         raw_left_ticks, raw_right_ticks = enc
         left_ticks = int(round(self.left_encoder_sign * raw_left_ticks))
         right_ticks = int(round(self.right_encoder_sign * raw_right_ticks))
-
-        self.left_ticks_total = left_ticks
-        self.right_ticks_total = right_ticks
 
         if self.prev_left_ticks_total is None or self.prev_right_ticks_total is None:
             self.prev_left_ticks_total = left_ticks
