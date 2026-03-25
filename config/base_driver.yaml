@@ -1,11 +1,11 @@
 base_driver:
   ros__parameters:
-    port: /dev/ttyUSB0
+    port: /dev/serial/by-id/usb-1a86_USB_Serial-if00-port0
     baudrate: 57600
 
-    wheel_radius: 0.05
-    wheel_separation: 0.35
-    encoder_ticks_per_rev: 360.0
+    wheel_radius: 0.068
+    wheel_separation: 0.237
+    encoder_ticks_per_rev: 408.0
     pid_rate_hz: 30.0
 
     cmd_timeout_sec: 0.5

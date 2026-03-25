@@ -47,7 +47,7 @@ def generate_launch_description():
     )
 
     return LaunchDescription([
-        DeclareLaunchArgument('serial_port', default_value='/dev/ttyUSB0'),
+        DeclareLaunchArgument('serial_port', default_value='/dev/serial/by-id/usb-Silicon_Labs_CP2102_USB_to_UART_Bridge_Controller_0001-if00-port0'),
         DeclareLaunchArgument('serial_baudrate', default_value='115200'),
         DeclareLaunchArgument('frame_id', default_value='laser_frame'),
         rsp,
