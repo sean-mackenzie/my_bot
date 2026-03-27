@@ -89,12 +89,11 @@ def _launch_setup(context, *args, **kwargs):
         )
     )
 
-    # Base bridges — unique name avoids DDS collision with other bridge instances
+    # Base bridges
     actions.append(
         Node(
             package='ros_gz_bridge',
             executable='parameter_bridge',
-            name='gz_bridge_base',
             arguments=[
                 '--ros-args',
                 '-p',
@@ -110,7 +109,6 @@ def _launch_setup(context, *args, **kwargs):
             Node(
                 package='ros_gz_bridge',
                 executable='parameter_bridge',
-                name='gz_bridge_lidar',
                 arguments=[
                     '--ros-args',
                     '-p',
@@ -126,7 +124,6 @@ def _launch_setup(context, *args, **kwargs):
             Node(
                 package='ros_gz_bridge',
                 executable='parameter_bridge',
-                name='gz_bridge_camera',
                 arguments=[
                     '--ros-args',
                     '-p',
