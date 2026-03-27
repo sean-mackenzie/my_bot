@@ -89,52 +89,36 @@ def _launch_setup(context, *args, **kwargs):
         )
     )
 
-    # Base bridges — unique name avoids DDS collision with other bridge instances
+    # ── Gazebo ↔ ROS bridge ──────────────────────────────────────────
+    # Use a SINGLE bridge instance with a combined config file.
+    # Multiple parameter_bridge instances share the default DDS node
+    # name, causing discovery collisions that silently drop publishers.
+    # One bridge = one DDS participant = no collisions.
+    if use_lidar and not use_camera:
+        bridge_config = os.path.join(pkg_path, 'config', 'gz_bridge_base_lidar.yaml')
+    elif use_camera and not use_lidar:
+        bridge_config = os.path.join(pkg_path, 'config', 'gz_bridge.yaml')
+    elif use_lidar and use_camera:
+        bridge_config = os.path.join(pkg_path, 'config', 'gz_bridge.yaml')
+    else:
+        bridge_config = os.path.join(pkg_path, 'config', 'gz_bridge_base.yaml')
+
     actions.append(
         Node(
             package='ros_gz_bridge',
             executable='parameter_bridge',
-            name='gz_bridge_base',
             arguments=[
                 '--ros-args',
                 '-p',
-                f'config_file:={os.path.join(pkg_path, "config", "gz_bridge_base.yaml")}',
+                f'config_file:={bridge_config}',
             ],
             output='screen',
         )
     )
 
-    # Optional lidar bridges
-    if use_lidar:
-        actions.append(
-            Node(
-                package='ros_gz_bridge',
-                executable='parameter_bridge',
-                name='gz_bridge_lidar',
-                arguments=[
-                    '--ros-args',
-                    '-p',
-                    f'config_file:={os.path.join(pkg_path, "config", "gz_bridge_lidar.yaml")}',
-                ],
-                output='screen',
-            )
-        )
-
-    # Optional camera bridges
+    # Camera image bridge (separate node — image_bridge is a different
+    # executable from parameter_bridge, so no name collision)
     if use_camera:
-        actions.append(
-            Node(
-                package='ros_gz_bridge',
-                executable='parameter_bridge',
-                name='gz_bridge_camera',
-                arguments=[
-                    '--ros-args',
-                    '-p',
-                    f'config_file:={os.path.join(pkg_path, "config", "gz_bridge_camera.yaml")}',
-                ],
-                output='screen',
-            )
-        )
         actions.append(
             Node(
                 package='ros_gz_image',
