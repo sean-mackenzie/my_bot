@@ -3,8 +3,8 @@ base_driver:
     port: /dev/serial/by-id/usb-1a86_USB_Serial-if00-port0
     baudrate: 57600
 
-    wheel_radius: 0.068
-    wheel_separation: 0.272
+    wheel_radius: 0.034
+    wheel_separation: 0.298
     encoder_ticks_per_rev: 1779.0
     pid_rate_hz: 30.0
 
