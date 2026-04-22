@@ -4,7 +4,7 @@ base_driver:
     baudrate: 57600
 
     wheel_radius: 0.068
-    wheel_separation: 0.237
+    wheel_separation: 0.272
     encoder_ticks_per_rev: 1779.0
     pid_rate_hz: 30.0
 

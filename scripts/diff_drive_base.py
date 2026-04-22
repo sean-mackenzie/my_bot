@@ -22,7 +22,7 @@ class DiffDriveBase(Node):
         self.declare_parameter('port', '/dev/ttyUSB0')
         self.declare_parameter('baudrate', 57600)
         self.declare_parameter('wheel_radius', 0.068)
-        self.declare_parameter('wheel_separation', 0.237)
+        self.declare_parameter('wheel_separation', 0.272)
         self.declare_parameter('encoder_ticks_per_rev', 1779.0)
         self.declare_parameter('pid_rate_hz', 30.0)
         self.declare_parameter('cmd_timeout_sec', 0.5)
