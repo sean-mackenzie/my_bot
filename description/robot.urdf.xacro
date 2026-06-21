@@ -18,14 +18,14 @@
     <!-- Optional lidar -->
     <xacro:if value="$(arg use_lidar)">
         <xacro:rplidar_a1 parent="chassis" use_sim="$(arg use_sim)">
-        <origin xyz="0.15 0 0.18" rpy="0 0 0"/>
+            <origin xyz="0.09 0.0 0.13575" rpy="0 0 0"/>
         </xacro:rplidar_a1>
     </xacro:if>
 
     <!-- Optional camera -->
     <xacro:if value="$(arg use_camera)">
         <xacro:pi_camera_v2 parent="chassis" use_sim="$(arg use_sim)">
-        <origin xyz="0.300 0.0 0.075" rpy="0 0 0"/>
+            <origin xyz="0.10325 -0.115 0.1235" rpy="0 0 0"/>
         </xacro:pi_camera_v2>
     </xacro:if>
 

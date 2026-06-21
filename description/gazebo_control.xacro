@@ -8,8 +8,8 @@
                 <!-- Wheel Information -->
                 <left_joint>left_wheel_joint</left_joint>
                 <right_joint>right_wheel_joint</right_joint>
-                <wheel_separation>0.35</wheel_separation>
-                <wheel_radius>0.05</wheel_radius>
+                <wheel_separation>0.298</wheel_separation>
+                <wheel_radius>0.034</wheel_radius>
 
                 <!-- Input -->
                 <!-- Use stamped topic for Jazzy compatibility -->

@@ -11,11 +11,10 @@
     </joint>
 
     <link name="laser_frame">
-      
       <visual>
         <geometry>
-          <!-- A1 approximate dimensions: 98.5mm diameter, 60mm height -->
-          <cylinder radius="0.0493" length="0.060"/>
+          <!-- A1 approximate dimensions: 70mm diameter, 54.5mm height -->
+          <cylinder radius="0.035" length="0.0545"/>
         </geometry>
         <material name="lidar_red">
           <color rgba="0.8 0.0 0.0 1.0"/>
@@ -24,20 +23,23 @@
 
       <collision>
         <geometry>
-          <cylinder radius="0.0493" length="0.060"/>
+          <cylinder radius="0.035" length="0.0545"/>
         </geometry>
       </collision>
-
+      <!-- 
       <inertial>
-        <!-- RPLIDAR A1M8 mass: ~170g -->
+        <! RPLIDAR A1M8 mass: ~170g >
         <mass value="0.170"/>
-        <!-- Solid cylinder: Ixx = Iyy = m(3r² + h²)/12, Izz = mr²/2 -->
+        <! Solid cylinder: Ixx = Iyy = m(3r² + h²)/12, Izz = mr²/2 >
         <inertia
           ixx="0.000214" ixy="0.0" ixz="0.0"
           iyy="0.000214" iyz="0.0"
           izz="0.000205"/>
-      </inertial>
-
+      </inertial> 
+      -->
+      <xacro:inertial_cylinder mass="0.170" length="0.0545" radius="0.035">
+        <origin xyz="0 0 0" rpy="0 0 0"/>
+      </xacro:inertial_cylinder>
     </link>
 
     <xacro:if value="${use_sim}">
@@ -78,6 +80,7 @@
           </sensor>
       </gazebo>
     </xacro:if>
+
   </xacro:macro>
 
 </robot>
