@@ -32,7 +32,7 @@
     <joint name="chassis_joint" type="fixed">
         <parent link="base_link"/>
         <child link="chassis"/>
-        <origin xyz="-0.1 0 0"/>
+        <origin xyz="0 0 0"/> <!-- "-0.1 0 0" -->
     </joint>
 
     <link name="chassis">
@@ -113,7 +113,7 @@
     <joint name="caster_wheel_joint" type="fixed">
         <parent link="chassis"/>
         <child link="caster_wheel"/>
-        <origin xyz="0.18 0 0.0185" rpy="0 0 0"/> <!-- "0.09 0 -0.045" -->
+        <origin xyz="0.18 0 0.0185" rpy="0 0 0"/>
     </joint>
 
     <link name="caster_wheel">
