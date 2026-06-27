@@ -1,8 +1,7 @@
 # =============================================================================
-# nav2_params10.yaml
+# nav2_params_sim.yaml
 #
-# Nav2 parameters for my_bot.  All plugin names, BT libraries, behavior
-# plugins, and velocity limits are IDENTICAL to the original nav2_params.yaml.
+# Nav2 parameters for my_bot.
 #
 # Changes from original:
 #   1. transform_tolerance: 0.2 -> 1.0 s  (all sections)
