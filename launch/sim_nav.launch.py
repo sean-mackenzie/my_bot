@@ -20,7 +20,7 @@ from launch_ros.actions import Node
 
 def generate_launch_description():
     pkg_path = get_package_share_directory('my_bot')
-    nav2_params = os.path.join(pkg_path, 'config', 'nav2_params10.yaml')
+    nav2_params = os.path.join(pkg_path, 'config', 'nav2_params_sim.yaml')
     map_file = '/home/sean-mackenzie/my_world_map.yaml'
 
     rviz_arg = DeclareLaunchArgument(
