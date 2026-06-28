@@ -9,6 +9,7 @@ from launch.actions import (
     DeclareLaunchArgument,
     IncludeLaunchDescription,
     RegisterEventHandler,
+    TimerAction,
 )
 from launch.conditions import IfCondition, UnlessCondition
 from launch.event_handlers import OnProcessExit
@@ -50,6 +51,7 @@ def generate_launch_description():
     nav2_params = LaunchConfiguration('params_file')
     slam_params = LaunchConfiguration('slam_params_file')
     load_map = LaunchConfiguration('load_map')
+    slam_start_delay = LaunchConfiguration('slam_start_delay')
     serial_port = LaunchConfiguration('serial_port')
     serial_baudrate = LaunchConfiguration('serial_baudrate')
     frame_id = LaunchConfiguration('frame_id')
@@ -231,6 +233,11 @@ def generate_launch_description():
             description='Full path to the real-robot SLAM Toolbox parameter file',
         ),
         DeclareLaunchArgument(
+            'slam_start_delay',
+            default_value='5.0',
+            description='Seconds to let real odom/lidar TF settle before starting SLAM',
+        ),
+        DeclareLaunchArgument(
             'serial_port',
             default_value='/dev/serial/by-id/usb-Silicon_Labs_CP2102_USB_to_UART_Bridge_Controller_0001-if00-port0',
             description='Serial port for the RPLidar A1',
@@ -251,8 +258,14 @@ def generate_launch_description():
             description='Launch RViz with the Nav2 display config',
         ),
         drive_lidar,
-        slam,
-        wait_for_slam_ready,
+        TimerAction(
+            period=slam_start_delay,
+            actions=[
+                slam,
+                wait_for_slam_ready,
+            ],
+            condition=UnlessCondition(load_map),
+        ),
         wait_for_real_ready,
         RegisterEventHandler(
             OnProcessExit(
