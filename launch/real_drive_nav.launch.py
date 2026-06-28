@@ -71,6 +71,7 @@ def generate_launch_description():
         executable='wait_for_real_ready.py',
         name='wait_for_real_ready',
         output='screen',
+        condition=IfCondition(load_map),
     )
 
     wait_for_slam_ready = Node(
@@ -250,17 +251,9 @@ def generate_launch_description():
             description='Launch RViz with the Nav2 display config',
         ),
         drive_lidar,
+        slam,
+        wait_for_slam_ready,
         wait_for_real_ready,
-        RegisterEventHandler(
-            OnProcessExit(
-                target_action=wait_for_real_ready,
-                on_exit=[
-                    slam,
-                    wait_for_slam_ready,
-                ],
-            ),
-            condition=UnlessCondition(load_map),
-        ),
         RegisterEventHandler(
             OnProcessExit(
                 target_action=wait_for_real_ready,
