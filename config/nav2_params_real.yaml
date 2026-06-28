@@ -67,7 +67,6 @@ bt_navigator:
     navigators: ["navigate_to_pose"]
     navigate_to_pose:
       plugin: "nav2_bt_navigator::NavigateToPoseNavigator"
-    plugin_lib_names:
 
 controller_server:
   ros__parameters:
