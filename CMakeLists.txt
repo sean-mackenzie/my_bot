@@ -7,6 +7,7 @@ install(
   PROGRAMS
     scripts/diff_drive_base.py
     scripts/wait_for_real_ready.py
+    scripts/wait_for_slam_ready.py
     scripts/wait_for_sim_ready.py
   DESTINATION lib/${PROJECT_NAME}
 )

@@ -73,6 +73,14 @@ def generate_launch_description():
         output='screen',
     )
 
+    wait_for_slam_ready = Node(
+        package='my_bot',
+        executable='wait_for_slam_ready.py',
+        name='wait_for_slam_ready',
+        output='screen',
+        condition=UnlessCondition(load_map),
+    )
+
     slam = IncludeLaunchDescription(
         PythonLaunchDescriptionSource(
             os.path.join(
@@ -248,6 +256,15 @@ def generate_launch_description():
                 target_action=wait_for_real_ready,
                 on_exit=[
                     slam,
+                    wait_for_slam_ready,
+                ],
+            ),
+            condition=UnlessCondition(load_map),
+        ),
+        RegisterEventHandler(
+            OnProcessExit(
+                target_action=wait_for_real_ready,
+                on_exit=[
                     map_server,
                     amcl,
                     lifecycle_manager_localization,
@@ -259,6 +276,22 @@ def generate_launch_description():
                     lifecycle_manager_navigation,
                     rviz_node,
                 ],
-            )
+            ),
+            condition=IfCondition(load_map),
+        ),
+        RegisterEventHandler(
+            OnProcessExit(
+                target_action=wait_for_slam_ready,
+                on_exit=[
+                    controller_server,
+                    planner_server,
+                    behavior_server,
+                    bt_navigator,
+                    waypoint_follower,
+                    lifecycle_manager_navigation,
+                    rviz_node,
+                ],
+            ),
+            condition=UnlessCondition(load_map),
         ),
     ])

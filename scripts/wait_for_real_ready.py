@@ -23,6 +23,7 @@ class WaitForRealReady(Node):
 
         self.scan_seen = False
         self.odom_seen = False
+        self.last_scan_stamp = None
 
         self.tf_buffer = Buffer()
         self.tf_listener = TransformListener(self.tf_buffer, self)
@@ -36,11 +37,13 @@ class WaitForRealReady(Node):
 
         self.get_logger().info(
             'Waiting for real robot readiness: /scan, /odom, '
-            'TF odom -> base_link, and TF base_link -> laser_frame'
+            'TF odom -> base_link, TF base_link -> laser_frame, '
+            'and TF odom -> laser_frame at the latest scan timestamp'
         )
 
     def scan_cb(self, msg):
         self.scan_seen = True
+        self.last_scan_stamp = msg.header.stamp
 
     def odom_cb(self, msg):
         self.odom_seen = True
@@ -60,8 +63,21 @@ class WaitForRealReady(Node):
             self.scan_seen and
             self.odom_seen and
             self.tf_ready('odom', 'base_link') and
-            self.tf_ready('base_link', 'laser_frame')
+            self.tf_ready('base_link', 'laser_frame') and
+            self.scan_tf_ready()
         )
+
+    def scan_tf_ready(self) -> bool:
+        if self.last_scan_stamp is None:
+            return False
+        try:
+            return self.tf_buffer.can_transform(
+                'odom',
+                'laser_frame',
+                Time.from_msg(self.last_scan_stamp),
+            )
+        except Exception:
+            return False
 
     def spin_until_ready(self):
         while rclpy.ok():
@@ -82,6 +98,7 @@ class WaitForRealReady(Node):
                     self.get_logger().info(
                         'Real robot is ready: /scan active, /odom active, '
                         'TF odom -> base_link exists, TF base_link -> laser_frame exists, '
+                        'TF odom -> laser_frame exists at the latest scan timestamp, '
                         'and readiness remained stable '
                         f'for {stable_elapsed:.2f} s'
                     )
@@ -109,6 +126,7 @@ class WaitForRealReady(Node):
                     f'odom_seen={self.odom_seen}, '
                     f'odom_to_base_ready={self.tf_ready("odom", "base_link")}, '
                     f'base_to_laser_ready={self.tf_ready("base_link", "laser_frame")}, '
+                    f'scan_tf_ready={self.scan_tf_ready()}, '
                     f'stable_window={stable_msg}'
                 )
 
