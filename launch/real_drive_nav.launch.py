@@ -5,8 +5,13 @@ from ament_index_python.packages import (
     get_package_share_directory,
 )
 from launch import LaunchDescription
-from launch.actions import DeclareLaunchArgument, IncludeLaunchDescription
+from launch.actions import (
+    DeclareLaunchArgument,
+    IncludeLaunchDescription,
+    RegisterEventHandler,
+)
 from launch.conditions import IfCondition, UnlessCondition
+from launch.event_handlers import OnProcessExit
 from launch.launch_description_sources import PythonLaunchDescriptionSource
 from launch.substitutions import LaunchConfiguration
 from launch_ros.actions import Node
@@ -59,6 +64,13 @@ def generate_launch_description():
             'serial_baudrate': serial_baudrate,
             'frame_id': frame_id,
         }.items(),
+    )
+
+    wait_for_real_ready = Node(
+        package='my_bot',
+        executable='wait_for_real_ready.py',
+        name='wait_for_real_ready',
+        output='screen',
     )
 
     slam = IncludeLaunchDescription(
@@ -230,15 +242,23 @@ def generate_launch_description():
             description='Launch RViz with the Nav2 display config',
         ),
         drive_lidar,
-        slam,
-        map_server,
-        amcl,
-        lifecycle_manager_localization,
-        controller_server,
-        planner_server,
-        behavior_server,
-        bt_navigator,
-        waypoint_follower,
-        lifecycle_manager_navigation,
-        rviz_node,
+        wait_for_real_ready,
+        RegisterEventHandler(
+            OnProcessExit(
+                target_action=wait_for_real_ready,
+                on_exit=[
+                    slam,
+                    map_server,
+                    amcl,
+                    lifecycle_manager_localization,
+                    controller_server,
+                    planner_server,
+                    behavior_server,
+                    bt_navigator,
+                    waypoint_follower,
+                    lifecycle_manager_navigation,
+                    rviz_node,
+                ],
+            )
+        ),
     ])
