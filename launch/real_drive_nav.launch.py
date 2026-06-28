@@ -201,7 +201,7 @@ def generate_launch_description():
         ),
         DeclareLaunchArgument(
             'params_file',
-            default_value=os.path.join(pkg_path, 'config', 'nav2_params.yaml'),
+            default_value=os.path.join(pkg_path, 'config', 'nav2_params_real.yaml'),
             description='Full path to the real-robot Nav2 parameter file',
         ),
         DeclareLaunchArgument(
