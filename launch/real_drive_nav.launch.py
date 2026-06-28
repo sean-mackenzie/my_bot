@@ -1,9 +1,12 @@
 import os
 
-from ament_index_python.packages import get_package_share_directory
+from ament_index_python.packages import (
+    PackageNotFoundError,
+    get_package_share_directory,
+)
 from launch import LaunchDescription
 from launch.actions import DeclareLaunchArgument, IncludeLaunchDescription
-from launch.conditions import IfCondition
+from launch.conditions import IfCondition, UnlessCondition
 from launch.launch_description_sources import PythonLaunchDescriptionSource
 from launch.substitutions import LaunchConfiguration
 from launch_ros.actions import Node
@@ -12,8 +15,36 @@ from launch_ros.actions import Node
 def generate_launch_description():
     pkg_path = get_package_share_directory('my_bot')
 
+    required_nav2_packages = [
+        'nav2_map_server',
+        'nav2_amcl',
+        'nav2_lifecycle_manager',
+        'nav2_controller',
+        'nav2_planner',
+        'nav2_behaviors',
+        'nav2_bt_navigator',
+        'nav2_waypoint_follower',
+        'slam_toolbox',
+    ]
+    missing_packages = []
+    for package_name in required_nav2_packages:
+        try:
+            get_package_share_directory(package_name)
+        except PackageNotFoundError:
+            missing_packages.append(package_name)
+
+    if missing_packages:
+        missing_list = ', '.join(missing_packages)
+        raise RuntimeError(
+            'Missing required ROS packages for real_drive_nav.launch.py: '
+            f'{missing_list}. Install the Nav2 stack in this ROS 2 '
+            'environment, then rebuild and re-source the workspace.'
+        )
+
     map_file = LaunchConfiguration('map')
     nav2_params = LaunchConfiguration('params_file')
+    slam_params = LaunchConfiguration('slam_params_file')
+    load_map = LaunchConfiguration('load_map')
     serial_port = LaunchConfiguration('serial_port')
     serial_baudrate = LaunchConfiguration('serial_baudrate')
     frame_id = LaunchConfiguration('frame_id')
@@ -30,6 +61,21 @@ def generate_launch_description():
         }.items(),
     )
 
+    slam = IncludeLaunchDescription(
+        PythonLaunchDescriptionSource(
+            os.path.join(
+                get_package_share_directory('slam_toolbox'),
+                'launch',
+                'online_async_launch.py',
+            )
+        ),
+        launch_arguments={
+            'use_sim_time': 'false',
+            'slam_params_file': slam_params,
+        }.items(),
+        condition=UnlessCondition(load_map),
+    )
+
     map_server = Node(
         package='nav2_map_server',
         executable='map_server',
@@ -44,6 +90,7 @@ def generate_launch_description():
                 'frame_id': 'map',
             },
         ],
+        condition=IfCondition(load_map),
     )
 
     amcl = Node(
@@ -55,6 +102,7 @@ def generate_launch_description():
             nav2_params,
             {'use_sim_time': False},
         ],
+        condition=IfCondition(load_map),
     )
 
     lifecycle_manager_localization = Node(
@@ -68,6 +116,7 @@ def generate_launch_description():
             'bond_timeout': 60.0,
             'node_names': ['map_server', 'amcl'],
         }],
+        condition=IfCondition(load_map),
     )
 
     controller_server = Node(
@@ -142,13 +191,23 @@ def generate_launch_description():
     return LaunchDescription([
         DeclareLaunchArgument(
             'map',
-            default_value='/home/sean-mackenzie/my_world_map.yaml',
+            default_value=os.path.join(pkg_path, 'maps', 'my_real_apartment_v1.yaml'),
             description='Full path to the map yaml file to load',
+        ),
+        DeclareLaunchArgument(
+            'load_map',
+            default_value='true',
+            description='Load a saved map with AMCL. If false, run SLAM instead.',
         ),
         DeclareLaunchArgument(
             'params_file',
             default_value=os.path.join(pkg_path, 'config', 'nav2_params.yaml'),
             description='Full path to the real-robot Nav2 parameter file',
+        ),
+        DeclareLaunchArgument(
+            'slam_params_file',
+            default_value=os.path.join(pkg_path, 'config', 'slam_toolbox.yaml'),
+            description='Full path to the real-robot SLAM Toolbox parameter file',
         ),
         DeclareLaunchArgument(
             'serial_port',
@@ -171,6 +230,7 @@ def generate_launch_description():
             description='Launch RViz with the Nav2 display config',
         ),
         drive_lidar,
+        slam,
         map_server,
         amcl,
         lifecycle_manager_localization,

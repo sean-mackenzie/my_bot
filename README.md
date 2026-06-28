@@ -179,7 +179,9 @@ machine-local assumptions:
 - `sim_nav.launch.py` and `sim_nav_only.launch.py` reference
   `config/nav2_params10.yaml`, while this repository currently contains
   `config/nav2_params.yaml`.
-- `real_drive_nav.launch.py` is currently empty.
+- `real_drive_nav.launch.py` launches map-based Nav2 bringup and requires the
+  Nav2 packages listed in `package.xml` to be installed in the active ROS 2
+  environment.
 
 Adjust those paths or launch files before relying on the Nav2 bringup flow.
 
